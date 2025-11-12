@@ -130,6 +130,10 @@ Store in `data.json`:
 - Batch selection radio buttons (B1/B3 or B2/B4)
 - Side-by-side Calendar widgets for semester start/end date selection
 - Holiday period management (add/remove date ranges with names)
+- **Reset Data Section**: Clear all holidays, absent dates, and overrides with confirmation dialog
+  - Preserves batch selection and semester dates
+  - Shows warning message before reset
+  - Success notification after completion
 - Editable at any time, triggers recalculation on save
 
 ### Tab 2: Weekly Timetable View (timetable_tab.py)
@@ -358,8 +362,9 @@ Keep functions focused and named clearly:
 ## Implemented Features
 - ✅ **Google Calendar-Style UI**: Monthly grid with color-coded days
 - ✅ **Left-Click Marking**: Open side panel to mark individual subjects
-- ✅ **Right-Click Quick Mark**: Mark entire day absent with one click
+- ✅ **Right-Click Quick Mark**: Mark entire day absent with one click (NOT holiday)
 - ✅ **Holiday Management**: Toggle individual days or add date ranges
+- ✅ **Reset Functionality**: One-click reset of all holidays and absent dates with confirmation
 - ✅ **Export Report**: Generate timestamped text file with attendance summary
 - ✅ **Real-time Updates**: All tabs refresh when data changes
 - ✅ **Present by Default**: Only absences tracked, all other classes marked present
@@ -367,6 +372,9 @@ Keep functions focused and named clearly:
 
 ## Optional Features (Future Enhancements)
 - **What-If Simulator**: Temporary calculation showing projected attendance if X classes are skipped
-- **Reset Button**: Clear all data and start fresh (confirm dialog before wiping)
 - **Undo/Redo**: Revert recent attendance changes
 - **Backup/Restore**: Export and import data.json for backup purposes
+- **Multi-Semester History**: Track attendance across multiple semesters
+- **Email Notifications**: Alert when attendance drops below threshold
+- **Mobile App**: Companion mobile application
+- **Cloud Sync**: Sync data across multiple devices

@@ -179,3 +179,9 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# MyAttendance Specific
+data.json                    # User data (personal attendance records)
+attendance_report_*.txt      # Exported reports
+*.bak                        # Backup files
+*_old.py                     # Old backup Python files
