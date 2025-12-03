@@ -1,11 +1,13 @@
 """
-Summary Dashboard - Overall attendance statistics and reporting
+Summary Dashboard - Enhanced attendance statistics and reporting
 
 Features:
-- Quick stats cards showing key metrics
-- Sortable table with all subjects
-- Color-coded status indicators  
+- Enhanced stats cards with visual progress indicators
+- Table with progress bars and color-coded rows
+- Sortable columns by clicking headers
+- Visual warning indicators for at-risk subjects
 - Export report functionality
+- Manual override via double-click
 
 Author: Siddhesh Bisen
 GitHub: https://github.com/siddhesh17b
@@ -24,81 +26,213 @@ from calculations import (
     get_attendance_status
 )
 
-# Color scheme
-COLOR_SAFE = "#28a745"    # Green - safe attendance (≥75%)
-COLOR_RISK = "#dc3545"    # Red - at risk (<75%)
-COLOR_INFO = "#007bff"    # Blue - informational
-COLOR_BG_DARK = "#e9ecef" # Light gray background
+# Enhanced color scheme
+COLOR_SAFE = "#28a745"        # Green - safe attendance (≥75%)
+COLOR_RISK = "#dc3545"        # Red - at risk (<75%)
+COLOR_WARNING = "#ffc107"     # Yellow - warning (75-80%)
+COLOR_INFO = "#007bff"        # Blue - informational
+COLOR_BG_SAFE = "#d4edda"     # Light green background
+COLOR_BG_WARNING = "#fff3cd"  # Light yellow background
+COLOR_BG_RISK = "#f8d7da"     # Light red background
+COLOR_BG_DARK = "#e9ecef"     # Light gray background
+COLOR_BG_CARD = "#ffffff"     # White card background
 
 
 class SummaryTab:
-    """Dashboard showing overall attendance statistics"""
+    """Enhanced dashboard with visual attendance statistics"""
     def __init__(self, notebook, refresh_callback):
         self.notebook = notebook
         self.refresh_all_tabs = refresh_callback
         self.stats_frame = None
         self.summary_tree = None
+        self.canvas_frame = None
+        self.sort_column = None
+        self.sort_reverse = False
     
     def create(self):
-        """Create the summary dashboard tab"""
+        """Create the enhanced summary dashboard tab"""
         tab = ttk.Frame(self.notebook)
         
-        # Header
+        # Main container with scrollbar
+        main_container = tk.Frame(tab)
+        main_container.pack(fill=tk.BOTH, expand=True)
+        
+        # Canvas for scrolling
+        canvas = tk.Canvas(main_container, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(main_container, orient="vertical", command=canvas.yview)
+        self.canvas_frame = tk.Frame(canvas)
+        
+        # Center content in canvas
+        canvas_window = canvas.create_window((0, 0), window=self.canvas_frame, anchor="n")
+        
+        def _configure_canvas(event):
+            # Update scroll region
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            # Center the frame horizontally
+            canvas_width = event.width
+            frame_width = self.canvas_frame.winfo_reqwidth()
+            x_position = max(0, (canvas_width - frame_width) // 2)
+            canvas.coords(canvas_window, x_position, 0)
+        
+        canvas.bind("<Configure>", _configure_canvas)
+        self.canvas_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Mouse wheel scrolling
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind("<MouseWheel>", _on_mousewheel)
+        
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # Header with icon
+        header_frame = tk.Frame(self.canvas_frame, bg="#ffffff")
+        header_frame.pack(fill=tk.X, pady=(0, 15))
+        
         tk.Label(
-            tab, 
-            text="Overall Attendance Summary", 
-            font=("Segoe UI", 14, "bold")
-        ).pack(pady=10)
+            header_frame, 
+            text="📊 Attendance Dashboard", 
+            font=("Segoe UI", 16, "bold"),
+            bg="#ffffff",
+            fg="#2c3e50"
+        ).pack(pady=15)
         
-        # Stats cards frame
-        self.stats_frame = tk.Frame(tab, bg=COLOR_BG_DARK)
-        self.stats_frame.pack(fill=tk.X, padx=10, pady=10)
+        # Stats cards frame (enhanced)
+        self.stats_frame = tk.Frame(self.canvas_frame, bg="#f8f9fa")
+        self.stats_frame.pack(fill=tk.X, padx=20, pady=(0, 20))
         
-        # Summary table
-        columns = ("Subject", "Present", "Total", "Attendance %", "Status", "Safe to Skip", "Action")
-        self.summary_tree = ttk.Treeview(tab, columns=columns, show="headings", height=12)
+        # Table frame with border
+        table_container = tk.Frame(self.canvas_frame, bg="#dee2e6", bd=1, relief=tk.SOLID)
+        table_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 10))
+        
+        # Table label
+        tk.Label(
+            table_container,
+            text="Subject-wise Attendance Details",
+            font=("Segoe UI", 11, "bold"),
+            bg="#ffffff",
+            fg="#495057",
+            anchor=tk.W
+        ).pack(fill=tk.X, padx=2, pady=(2, 5))
+        
+        # Summary table with enhanced styling
+        columns = ("Subject", "Attended", "Total", "Percentage", "Progress", "Status", "Skip", "Action")
+        self.summary_tree = ttk.Treeview(table_container, columns=columns, show="headings", height=10)
+        
+        # Configure column headers with sort functionality
+        column_configs = {
+            "Subject": (180, "Subject Name", tk.W),
+            "Attended": (80, "Present", tk.CENTER),
+            "Total": (80, "Total", tk.CENTER),
+            "Percentage": (90, "Attendance", tk.CENTER),
+            "Progress": (150, "Visual Progress", tk.CENTER),
+            "Status": (90, "Status", tk.CENTER),
+            "Skip": (80, "Can Skip", tk.CENTER),
+            "Action": (120, "Action", tk.CENTER)
+        }
+        
+        for col, (width, heading, anchor) in column_configs.items():
+            self.summary_tree.heading(col, text=heading, command=lambda c=col: self.sort_by_column(c))
+            self.summary_tree.column(col, width=width, anchor=anchor)
+        
+        # Scrollbar for table
+        tree_scroll = ttk.Scrollbar(table_container, orient="vertical", command=self.summary_tree.yview)
+        self.summary_tree.configure(yscrollcommand=tree_scroll.set)
+        
+        self.summary_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(2, 0), pady=(0, 2))
+        tree_scroll.pack(side=tk.RIGHT, fill=tk.Y, pady=(0, 2), padx=(0, 2))
         
         # Enable mouse wheel scrolling on treeview
-        def _on_mousewheel(event):
+        def _on_tree_mousewheel(event):
             self.summary_tree.yview_scroll(int(-1*(event.delta/120)), "units")
-        self.summary_tree.bind("<MouseWheel>", _on_mousewheel)
-        
-        for col in columns:
-            self.summary_tree.heading(col, text=col)
-            # Set column widths
-            if col == "Subject":
-                width = 150
-            else:
-                width = 100
-            self.summary_tree.column(col, width=width)
-        
-        self.summary_tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.summary_tree.bind("<MouseWheel>", _on_tree_mousewheel)
         
         # Bind double-click to open override dialog
         self.summary_tree.bind("<Double-Button-1>", self.on_row_double_click)
         
-        # Info label
-        tk.Label(
-            tab,
-            text="💡 Tip: Double-click any subject row to manually override attendance data",
-            font=("Arial", 9),
-            foreground="#6c757d"
-        ).pack(pady=5)
+        # Tips and actions frame
+        action_frame = tk.Frame(self.canvas_frame, bg="#f8f9fa")
+        action_frame.pack(fill=tk.X, padx=20, pady=10)
         
-        # Export button
+        # Info labels
+        tips_frame = tk.Frame(action_frame, bg="#f8f9fa")
+        tips_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        tk.Label(
+            tips_frame,
+            text="💡 Double-click any row to manually override attendance data",
+            font=("Arial", 9),
+            foreground="#6c757d",
+            bg="#f8f9fa",
+            anchor=tk.W
+        ).pack(anchor=tk.W, pady=2)
+        
+        tk.Label(
+            tips_frame,
+            text="📌 Click column headers to sort • Color coding: 🟢 Safe • 🟡 Warning • 🔴 At Risk",
+            font=("Arial", 9),
+            foreground="#6c757d",
+            bg="#f8f9fa",
+            anchor=tk.W
+        ).pack(anchor=tk.W, pady=2)
+        
+        # Export button (enhanced)
         ttk.Button(
-            tab, 
+            action_frame, 
             text="📄 Export Report", 
             command=self.export_report
-        ).pack(pady=10)
+        ).pack(side=tk.RIGHT, padx=5)
         
         # Initial data load
         self.refresh()
         
         return tab
     
+    def sort_by_column(self, col):
+        """Sort treeview by column when header clicked"""
+        if self.sort_column == col:
+            self.sort_reverse = not self.sort_reverse
+        else:
+            self.sort_column = col
+            self.sort_reverse = False
+        
+        # Get all items
+        items = [(self.summary_tree.set(item, col), item) for item in self.summary_tree.get_children('')]
+        
+        # Sort based on column type
+        if col in ("Attended", "Total", "Skip"):
+            items.sort(key=lambda x: int(x[0]) if x[0].isdigit() else 0, reverse=self.sort_reverse)
+        elif col == "Percentage":
+            items.sort(key=lambda x: float(x[0].strip('%')) if '%' in x[0] else 0, reverse=self.sort_reverse)
+        else:
+            items.sort(reverse=self.sort_reverse)
+        
+        # Rearrange items
+        for index, (val, item) in enumerate(items):
+            self.summary_tree.move(item, '', index)
+    
+    def create_progress_bar(self, percentage):
+        """Create visual progress bar representation"""
+        bar_length = 10
+        filled = int((percentage / 100) * bar_length)
+        
+        if percentage >= 85:
+            symbol = "█"
+            color = "🟢"
+        elif percentage >= 75:
+            symbol = "█"
+            color = "🟡"
+        else:
+            symbol = "█"
+            color = "🔴"
+        
+        bar = symbol * filled + "░" * (bar_length - filled)
+        return f"{color} {bar}"
+    
     def refresh(self):
-        """Refresh summary display"""
+        """Refresh summary display with enhanced visualizations"""
         app_data = get_app_data()
         
         # Optimize UI updates
@@ -118,6 +252,7 @@ class SummaryTab:
         # Calculate metrics
         total_attendance_pct = 0
         at_risk_count = 0
+        warning_count = 0
         safe_count = 0
         
         end_date = datetime.now().strftime("%Y-%m-%d")
@@ -130,6 +265,8 @@ class SummaryTab:
             app_data.get("holidays", [])
         )
         
+        subject_data_list = []
+        
         for subject_data in app_data.get("subjects", []):
             name = subject_data["name"]
             
@@ -138,7 +275,7 @@ class SummaryTab:
                 override_data = subject_data["attendance_override"]
                 present = override_data["attended"]
                 total = override_data["total"]
-                action_text = "📝 Edit (Manual)"
+                action_text = "📝 Manual"
             else:
                 # Calculate total classes
                 if subject_data.get("total_override") is not None:
@@ -149,63 +286,110 @@ class SummaryTab:
                 # Calculate present classes (total - absent)
                 absent_count = len(subject_data.get("absent_dates", []))
                 present = max(0, total - absent_count)
-                action_text = "📝 Edit"
+                action_text = "✏️ Edit"
             
             attendance_pct = calculate_attendance(present, total)
             safe_skip = calculate_safe_skip(present, total)
             status, color = get_attendance_status(attendance_pct)
             
-            total_attendance_pct += attendance_pct
-            if attendance_pct < 75:
-                at_risk_count += 1
-            else:
+            # Create progress bar
+            progress_bar = self.create_progress_bar(attendance_pct)
+            
+            # Determine status icon and category
+            if attendance_pct >= 85:
+                status_icon = "🟢 Excellent"
+                tag = "safe"
                 safe_count += 1
+            elif attendance_pct >= 75:
+                status_icon = "🟡 Safe"
+                tag = "warning"
+                warning_count += 1
+            else:
+                status_icon = "🔴 At Risk"
+                tag = "risk"
+                at_risk_count += 1
+            
+            total_attendance_pct += attendance_pct
             
             item = self.summary_tree.insert(
                 "", tk.END,
-                values=(name, present, total, f"{attendance_pct:.1f}%", status, safe_skip, action_text)
+                values=(name, present, total, f"{attendance_pct:.1f}%", progress_bar, status_icon, safe_skip, action_text)
             )
             
-            if attendance_pct < 75:
-                self.summary_tree.item(item, tags=("risk",))
-            else:
-                self.summary_tree.item(item, tags=("safe",))
+            self.summary_tree.item(item, tags=(tag,))
+            subject_data_list.append((name, attendance_pct, present, total))
         
-        self.summary_tree.tag_configure("risk", foreground=COLOR_RISK)
-        self.summary_tree.tag_configure("safe", foreground=COLOR_SAFE)
+        # Configure tags with background colors
+        self.summary_tree.tag_configure("safe", background=COLOR_BG_SAFE, foreground="#155724")
+        self.summary_tree.tag_configure("warning", background=COLOR_BG_WARNING, foreground="#856404")
+        self.summary_tree.tag_configure("risk", background=COLOR_BG_RISK, foreground="#721c24")
         
-        # Display stats cards
+        # Display enhanced stats cards
         num_subjects = len(app_data.get("subjects", []))
         avg_attendance = total_attendance_pct / num_subjects if num_subjects > 0 else 0
         
+        # Determine average color
+        if avg_attendance >= 85:
+            avg_color = COLOR_SAFE
+        elif avg_attendance >= 75:
+            avg_color = COLOR_WARNING
+        else:
+            avg_color = COLOR_RISK
+        
         stats_info = [
-            ("Total Subjects", num_subjects, COLOR_INFO),
-            ("Average Attendance", f"{avg_attendance:.1f}%", COLOR_INFO),
-            ("Safe Subjects", safe_count, COLOR_SAFE),
-            ("At-Risk Subjects", at_risk_count, COLOR_RISK if at_risk_count > 0 else COLOR_INFO)
+            ("📚", "Total Subjects", num_subjects, COLOR_INFO, "#cce5ff"),
+            ("📊", "Average", f"{avg_attendance:.1f}%", avg_color, self.get_bg_color(avg_attendance)),
+            ("✅", "Excellent/Safe", safe_count + warning_count, COLOR_SAFE, COLOR_BG_SAFE),
+            ("⚠️", "At Risk", at_risk_count, COLOR_RISK if at_risk_count > 0 else "#6c757d", COLOR_BG_RISK if at_risk_count > 0 else "#f8f9fa")
         ]
         
-        for label, value, color in stats_info:
-            # Create card frame
-            frame = tk.Frame(self.stats_frame, bg=COLOR_BG_DARK)
-            frame.pack(side=tk.LEFT, expand=True, padx=10, pady=10)
-            
-            # Label
-            tk.Label(
-                frame, 
-                text=label, 
-                font=("Segoe UI", 10), 
-                bg=COLOR_BG_DARK
-            ).pack()
-            
-            # Value
-            tk.Label(
-                frame, 
-                text=str(value), 
-                font=("Segoe UI", 16, "bold"), 
-                fg=color, 
-                bg=COLOR_BG_DARK
-            ).pack()
+        for icon, label, value, text_color, bg_color in stats_info:
+            self.create_stat_card(icon, label, value, text_color, bg_color)
+    
+    def get_bg_color(self, percentage):
+        """Get background color based on percentage"""
+        if percentage >= 85:
+            return COLOR_BG_SAFE
+        elif percentage >= 75:
+            return COLOR_BG_WARNING
+        else:
+            return COLOR_BG_RISK
+    
+    def create_stat_card(self, icon, label, value, text_color, bg_color):
+        """Create enhanced stat card with icon and styling"""
+        # Card container with shadow effect
+        card_container = tk.Frame(self.stats_frame, bg="#dee2e6", bd=1, relief=tk.SOLID)
+        card_container.pack(side=tk.LEFT, expand=True, padx=8, pady=8)
+        
+        # Inner card
+        card = tk.Frame(card_container, bg=bg_color)
+        card.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        
+        # Icon
+        tk.Label(
+            card,
+            text=icon,
+            font=("Segoe UI", 24),
+            bg=bg_color
+        ).pack(pady=(15, 5))
+        
+        # Value
+        tk.Label(
+            card,
+            text=str(value),
+            font=("Segoe UI", 22, "bold"),
+            fg=text_color,
+            bg=bg_color
+        ).pack()
+        
+        # Label
+        tk.Label(
+            card,
+            text=label,
+            font=("Segoe UI", 9),
+            fg="#495057",
+            bg=bg_color
+        ).pack(pady=(5, 15))
     
     def export_report(self):
         """Export attendance report to text file"""
