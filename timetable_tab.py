@@ -66,6 +66,9 @@ class TimetableTab:
         app_data = get_app_data()
         batch = app_data.get("batch", "B1/B3")
         self.batch_label.config(text=f"Current Batch: {batch}")
+        
+        # Optimize widget destruction
+        self.timetable_frame.update_idletasks()
         for widget in self.timetable_frame.winfo_children():
             widget.destroy()
         

@@ -134,9 +134,14 @@ class SetupTab:
         self.holidays_tree.heading("End", text="End Date")
         self.holidays_tree.pack(fill=tk.BOTH, expand=True, pady=5)
         
+        # Enable mouse wheel scrolling on holidays tree
+        def _on_holidays_mousewheel(event):
+            self.holidays_tree.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.holidays_tree.bind("<MouseWheel>", _on_holidays_mousewheel)
+        
         btn_frame = tk.Frame(holidays_frame)
         btn_frame.pack(fill=tk.X, pady=5)
-        ttk.Button(btn_frame, text="➕ Add Holiday", command=self.add_holiday).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="➕ Add Holiday Period", command=self.add_holiday).pack(side=tk.LEFT, padx=5)
         ttk.Button(btn_frame, text="➖ Remove Holiday", command=self.remove_holiday).pack(side=tk.LEFT, padx=5)
         
         # Timetable Management Section (RIGHT)
@@ -146,7 +151,7 @@ class SetupTab:
         
         tk.Label(
             timetable_frame, 
-            text="📚 Upload your own timetable CSV or export the current one as a template.\nSee TIMETABLE_UPLOAD_GUIDE.md for format details.",
+            text="📚 Upload your own timetable CSV or export the current one as a template.\nSee COMPLETE_GUIDE.md for format details.",
             font=("Arial", 9),
             foreground="#007bff",
             justify=tk.LEFT
@@ -192,6 +197,11 @@ class SetupTab:
         self.skipped_tree.heading("Start", text="Start Date")
         self.skipped_tree.heading("End", text="End Date")
         self.skipped_tree.pack(fill=tk.BOTH, expand=True, pady=5)
+        
+        # Enable mouse wheel scrolling on skipped days tree
+        def _on_skipped_mousewheel(event):
+            self.skipped_tree.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.skipped_tree.bind("<MouseWheel>", _on_skipped_mousewheel)
         
         skipped_btn_frame = tk.Frame(skipped_frame)
         skipped_btn_frame.pack(fill=tk.X, pady=5)
@@ -267,21 +277,51 @@ class SetupTab:
         """Add a holiday period"""
         app_data = get_app_data()
         dialog = tk.Toplevel()
-        dialog.title("Add Holiday")
-        dialog.geometry("450x400")
+        dialog.title("Add Holiday Period")
+        dialog.resizable(True, True)
         
-        tk.Label(dialog, text="Holiday Name:", font=("Segoe UI", 10, "bold")).pack(pady=5)
-        name_entry = ttk.Entry(dialog, width=30)
+        # Center the dialog window with increased size
+        width = 500
+        height = 650
+        x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+        y = (dialog.winfo_screenheight() // 2) - (height // 2)
+        dialog.geometry(f"{width}x{height}+{x}+{y}")
+        
+        # Create scrollable container
+        canvas = tk.Canvas(dialog)
+        scrollbar = ttk.Scrollbar(dialog, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Enable mouse wheel scrolling
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind("<MouseWheel>", _on_mousewheel)
+        scrollable_frame.bind("<MouseWheel>", _on_mousewheel)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        tk.Label(scrollable_frame, text="Reason (e.g., Sick, Personal):", font=("Segoe UI", 10, "bold")).pack(pady=5)
+        tk.Label(scrollable_frame, text="Holiday Name:", font=("Segoe UI", 10, "bold")).pack(pady=5)
+        name_entry = ttk.Entry(scrollable_frame, width=30)
         name_entry.pack()
         
         # Start date calendar
-        tk.Label(dialog, text="Start Date:", font=("Segoe UI", 10, "bold")).pack(pady=(10, 5))
-        start_cal = Calendar(dialog, selectmode='day', date_pattern='yyyy-mm-dd')
+        tk.Label(scrollable_frame, text="Start Date:", font=("Segoe UI", 10, "bold")).pack(pady=(10, 5))
+        start_cal = Calendar(scrollable_frame, selectmode='day', date_pattern='yyyy-mm-dd')
         start_cal.pack(pady=5)
         
         # End date calendar
-        tk.Label(dialog, text="End Date:", font=("Segoe UI", 10, "bold")).pack(pady=(10, 5))
-        end_cal = Calendar(dialog, selectmode='day', date_pattern='yyyy-mm-dd')
+        tk.Label(scrollable_frame, text="End Date:", font=("Segoe UI", 10, "bold")).pack(pady=(10, 5))
+        end_cal = Calendar(scrollable_frame, selectmode='day', date_pattern='yyyy-mm-dd')
         end_cal.pack(pady=5)
         
         def save_holiday():
@@ -303,7 +343,7 @@ class SetupTab:
             self.refresh_all_tabs()
             dialog.destroy()
         
-        ttk.Button(dialog, text="Save", command=save_holiday).pack(pady=10)
+        ttk.Button(scrollable_frame, text="Save", command=save_holiday).pack(pady=10)
     
     def remove_holiday(self):
         """Remove selected holiday"""
@@ -323,25 +363,54 @@ class SetupTab:
         """Add a skipped days period"""
         app_data = get_app_data()
         dialog = tk.Toplevel()
-        dialog.title("Add Skipped Days")
-        dialog.geometry("450x450")
+        dialog.title("Add Skipped Period")
+        dialog.resizable(True, True)
         
-        tk.Label(dialog, text="Reason (e.g., Sick, Personal):", font=("Segoe UI", 10, "bold")).pack(pady=5)
-        name_entry = ttk.Entry(dialog, width=30)
+        # Center the dialog window with increased size
+        width = 500
+        height = 700
+        x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+        y = (dialog.winfo_screenheight() // 2) - (height // 2)
+        dialog.geometry(f"{width}x{height}+{x}+{y}")
+        
+        # Create scrollable container
+        canvas = tk.Canvas(dialog)
+        scrollbar = ttk.Scrollbar(dialog, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Enable mouse wheel scrolling
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind("<MouseWheel>", _on_mousewheel)
+        scrollable_frame.bind("<MouseWheel>", _on_mousewheel)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        tk.Label(scrollable_frame, text="Reason (e.g., Sick, Personal):", font=("Segoe UI", 10, "bold")).pack(pady=5)
+        name_entry = ttk.Entry(scrollable_frame, width=30)
         name_entry.pack()
         
         # Start date calendar
-        tk.Label(dialog, text="Start Date:", font=("Segoe UI", 10, "bold")).pack(pady=(10, 5))
-        start_cal = Calendar(dialog, selectmode='day', date_pattern='yyyy-mm-dd')
+        tk.Label(scrollable_frame, text="Start Date:", font=("Segoe UI", 10, "bold")).pack(pady=(10, 5))
+        start_cal = Calendar(scrollable_frame, selectmode='day', date_pattern='yyyy-mm-dd')
         start_cal.pack(pady=5)
         
         # End date calendar
-        tk.Label(dialog, text="End Date:", font=("Segoe UI", 10, "bold")).pack(pady=(10, 5))
-        end_cal = Calendar(dialog, selectmode='day', date_pattern='yyyy-mm-dd')
+        tk.Label(scrollable_frame, text="End Date:", font=("Segoe UI", 10, "bold")).pack(pady=(10, 5))
+        end_cal = Calendar(scrollable_frame, selectmode='day', date_pattern='yyyy-mm-dd')
         end_cal.pack(pady=5)
         
         tk.Label(
-            dialog, 
+            scrollable_frame, 
             text="⚠️ All classes in this period will be marked absent",
             font=("Arial", 9),
             foreground="#dc3545"
@@ -394,7 +463,7 @@ class SetupTab:
             dialog.destroy()
             messagebox.showinfo("Success", f"Marked all classes as absent from {start} to {end}")
         
-        ttk.Button(dialog, text="Save", command=save_skipped).pack(pady=10)
+        ttk.Button(scrollable_frame, text="Save", command=save_skipped).pack(pady=10)
     
     def remove_skipped_days(self):
         """Remove selected skipped period"""

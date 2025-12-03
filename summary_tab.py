@@ -90,6 +90,9 @@ class SummaryTab:
         """Refresh summary display"""
         app_data = get_app_data()
         
+        # Optimize UI updates
+        self.summary_tree.update_idletasks()
+        
         # Clear existing items
         for item in self.summary_tree.get_children():
             self.summary_tree.delete(item)

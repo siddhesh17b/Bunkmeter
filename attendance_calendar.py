@@ -112,6 +112,12 @@ class AttendanceCalendar:
         
         self.calendar_frame.bind("<Configure>", configure_scroll)
         canvas.bind("<Configure>", configure_scroll)
+        
+        # Enable mouse wheel scrolling on calendar
+        def _on_calendar_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind("<MouseWheel>", _on_calendar_mousewheel)
+        self.calendar_frame.bind("<MouseWheel>", _on_calendar_mousewheel)
     
     def create_side_panel(self, parent):
         """Create side panel for subject selection"""
@@ -334,6 +340,12 @@ class AttendanceCalendar:
         subjects_frame.bind("<Configure>", configure_subjects_scroll)
         subjects_canvas.bind("<Configure>", configure_subjects_scroll)
         
+        # Enable mouse wheel scrolling on subjects panel
+        def _on_mousewheel(event):
+            subjects_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        subjects_canvas.bind("<MouseWheel>", _on_mousewheel)
+        subjects_frame.bind("<MouseWheel>", _on_mousewheel)
+        
         # Create checkboxes for each subject
         for subject in subjects:
             subject_data = next((s for s in app_data["subjects"] if s["name"] == subject), None)
@@ -503,6 +515,9 @@ class AttendanceCalendar:
     
     def draw_calendar(self):
         """Draw the monthly calendar grid"""
+        # Defer widget destruction for smoother rendering
+        self.calendar_frame.update_idletasks()
+        
         # Clear existing calendar
         for widget in self.calendar_frame.winfo_children():
             widget.destroy()

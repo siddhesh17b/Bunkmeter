@@ -190,3 +190,4 @@ attendance_report_*.txt      # Exported reports
 my_timetable.csv
 data.json
 custom_timetable.json
+timetable.md

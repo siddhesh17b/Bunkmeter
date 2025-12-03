@@ -56,11 +56,14 @@ Imagine having a **smart assistant** that:
 - **Smart Batch Filtering**: Upload one timetable with both batches, app shows only your batch's classes
 - **Custom Subject Names**: Use ANY subject names - full flexibility
 - **Custom Batch Names**: Not limited to B1/B3 - supports any batch naming convention
-- **Holiday Management**: Mark individual days or date ranges as holidays
+- **Holiday Management**: Mark individual days or date ranges as holidays via centered, scrollable dialogs
 - **Skipped Days Management**: ✨ **NEW!** Track sick leaves and bulk absence periods
-- **Right-Click Quick Mark**: Instantly mark entire day as absent with right-click
+- **Right-Click Quick Mark**: Instantly mark entire day as absent with right-click (with hint in UI)
 - **Data Persistence**: All data stored locally in JSON format
 - **Reset Functionality**: Clear all data for new semester with one click
+- **Centered Windows**: All windows and dialogs centered on screen for better UX
+- **Performance Optimized**: Smooth rendering with deferred refresh logic
+- **Mouse Wheel Scrolling**: Enabled on all tabs, treeviews, and dialog windows
 
 ### 🖱️ Interaction Methods
 - **Left-Click**: Select a date to mark individual subjects absent/present
@@ -134,7 +137,12 @@ python app.py
 - **Batch Selection**: Choose your batch (supports custom batch names via CSV)
 - **Semester Dates**: Set start and end dates using calendar widgets
 - **Holiday Management**: Add/remove holiday periods with names
+  - "Add Holiday Period" button opens centered dialog (500x650)
+  - Scrollable with mouse wheel support
+  - Calendar widgets for easy date selection
 - **Skipped Days Management**: ✨ **NEW!** Add date ranges when completely absent (sick leave, etc.)
+  - "Add Skipped Period" button opens centered dialog (500x700)
+  - Scrollable with mouse wheel support
   - Automatically marks all classes as absent for the period
   - Remove period with option to restore attendance
 - **Custom Timetable Management**:
@@ -154,7 +162,7 @@ python app.py
 - **Color-Coded Days**:
   - 🟢 Light Green: All classes present
   - 🔴 Light Red: Some classes marked absent
-  - 🔴 Dark Red: Completely skipped (ALL classes absent)
+  - 🔴 Dark Red (#EF5350): Completely skipped (ALL classes absent)
   - 🟡 Light Yellow: Holiday
   - 🔵 Light Blue: Today
   - ⚪ Light Gray: Weekend/Future dates
@@ -170,6 +178,7 @@ python app.py
    - Right-click any date
    - Instantly marks ALL classes as absent
    - No confirmation needed - fast and efficient!
+   - UI hint in calendar header explains right-click functionality
 
 3. **Holidays**:
    - Left-click a date
@@ -202,6 +211,8 @@ MyAttendance/
 ├── 💾 data.json               # User data (auto-generated)
 ├── 📝 timetable.md            # Timetable reference
 ├── 📖 README.md               # This file
+├── 📚 COMPLETE_GUIDE.md       # Complete guide: CSV format, upload, & implementation
+├── 📋 timetable_template.csv  # Sample CSV template
 └── .gitignore                 # Git ignore rules
 ```
 
@@ -217,7 +228,7 @@ MyAttendance/
 | 🟣 Lab Classes | Purple | `#7B1FA2` | CN Lab, DAA Lab, Software Lab |
 | 🟠 Special Classes | Orange | `#E65100` | Minor, MDM, OE, Honors |
 | 🟡 Holidays | Yellow | `#FFF9C4` | Marked holiday dates |
-| 🔴 Completely Skipped | Dark Red | `#FFCDD2` | ALL classes absent |
+| 🔴 Completely Skipped | Dark Red | `#EF5350` | ALL classes absent |
 | ⚪ Future/Weekend | Gray | `#F5F5F5` | Upcoming/non-working days |
 
 ## 🧮 Attendance Formula
@@ -277,7 +288,11 @@ TIMETABLE_DATA = {
 ### Changing the Window Size
 Edit `app.py`:
 ```python
-self.root.geometry("1400x900")  # Width x Height
+width = 1400
+height = 900
+x = (root.winfo_screenwidth() // 2) - (width // 2)
+y = (root.winfo_screenheight() // 2) - (height // 2)
+self.root.geometry(f"{width}x{height}+{x}+{y}")  # Centered window
 ```
 
 ## 🐛 Troubleshooting
@@ -463,9 +478,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📞 Support
 
 For issues or questions:
-1. Check the Troubleshooting section
-2. Review the User Guide
-3. Check existing issues on GitHub
+1. Check the Troubleshooting section in this README
+2. Review `COMPLETE_GUIDE.md` for detailed CSV format and upload instructions
+3. Use the Export Template feature to see correct CSV structure
+4. Check existing issues on [GitHub](https://github.com/siddhesh17b/MyAttendance/issues)
 
 ---
 

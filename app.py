@@ -26,8 +26,17 @@ class BunkBuddyApp:
     def __init__(self, root):
         self.root = root
         self.root.title("MyAttendance - Smart Attendance Tracker")
-        self.root.geometry("1400x900")
+        
+        # Center the main window
+        width = 1400
+        height = 900
+        x = (root.winfo_screenwidth() // 2) - (width // 2)
+        y = (root.winfo_screenheight() // 2) - (height // 2)
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
         self.root.configure(bg=COLOR_BG_LIGHT)
+        
+        # Optimize rendering
+        self.root.update_idletasks()
         
         # Load data
         app_data = get_app_data()
@@ -36,7 +45,7 @@ class BunkBuddyApp:
         
         # Create main UI
         self.create_ui()
-        self.refresh_all_tabs()
+        # Initial tab will refresh on its own during creation
     
     def show_first_time_setup(self):
         """Show setup wizard for first-time users"""
@@ -45,6 +54,14 @@ class BunkBuddyApp:
         setup_window.geometry("400x200")
         setup_window.transient(self.root)
         setup_window.grab_set()
+        
+        # Center the window
+        setup_window.update_idletasks()
+        width = 400
+        height = 200
+        x = (setup_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (setup_window.winfo_screenheight() // 2) - (height // 2)
+        setup_window.geometry(f"{width}x{height}+{x}+{y}")
         
         tk.Label(setup_window, text="Welcome to MyAttendance!", font=("Arial", 14, "bold")).pack(pady=10)
         tk.Label(setup_window, text="Please select your batch:", font=("Arial", 11)).pack(pady=5)
@@ -108,6 +125,11 @@ class BunkBuddyApp:
     
     def refresh_all_tabs(self):
         """Refresh all tab displays"""
+        # Defer refresh to avoid blocking UI
+        self.root.after(10, self._do_refresh)
+    
+    def _do_refresh(self):
+        """Actual refresh logic with optimized order"""
         if hasattr(self, 'setup_tab'):
             self.setup_tab.refresh()
         if hasattr(self, 'timetable_tab'):
