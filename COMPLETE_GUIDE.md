@@ -1,130 +1,76 @@
-# Timetable Upload Guide
+# CSV Timetable Format
 
-## Quick Start
+## Quickest Way
 
-### Export → Edit → Import (Easiest Way)
-
-1. **Setup Tab → Export Template** → saves CSV file
-2. **Open CSV** in Excel or Notepad
-3. **Edit** your times and subjects
-4. **Setup Tab → Import** → select your file
-5. Done. No restart needed.
+1. **Setup → Export Template** (get a sample CSV)
+2. Edit in Excel/Notepad
+3. **Setup → Import** your file
+4. Done
 
 ---
 
-## CSV Format (Simple)
-
-Must have 3 columns: `Day,Time,Subject`
+## Format
 
 ```csv
 Day,Time,Subject
 MONDAY,09:00-10:00,Math
 MONDAY,10:00-11:00,Physics
 MONDAY,12:00-01:00,Lunch Break
-TUESDAY,09:00-10:00,Chemistry
+TUESDAY,02:00-04:00,Lab (Group A) / Lab (Group B)
 ```
 
-### Rules:
-
-**Day:**
-- MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
-- Uppercase required
-- Include all 6 days even if no classes
-
-**Time:**
-- ANY format works: `09:00-10:00`, `08:00-09:00`, `2:30-3:30 PM`
-- No validation - write whatever
-- Any duration: `08:00-10:00` (2 hours) is fine
-
-**Subject:**
-- ANY name works: `Math`, `CS101 - Algorithms`, `Lab Session 3`
-- Kept exactly as you type it
-- Only "Lunch" keyword is ignored for attendance
+| Column | Rules |
+|--------|-------|
+| Day | MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY (uppercase) |
+| Time | Any format: `09:00-10:00`, `8-9am`, `14:00-16:00` |
+| Subject | Any name. "Lunch" is ignored. |
 
 ---
 
-## Different Batches, Different Classes
+## Batch-Specific Classes
 
-For labs where batches have different subjects:
+For labs where different batches have different subjects:
 
 ```csv
-Day,Time,Subject
 WEDNESDAY,03:00-04:00,CN Lab (B1&B3) / DAA Lab (B2&B4)
 THURSDAY,01:00-02:30,Physics Lab (Group A) / Chemistry Lab (Group B)
 ```
 
-**App auto-detects batch names from your CSV!**
-- Extracts batch names from parentheses: `(B1&B3)`, `(Group A)`, `(Section X)`, etc.
-- First-time setup shows YOUR batch names, not hardcoded B1/B3
-- Works with ANY naming convention your college uses
+- App **auto-detects** batch names from parentheses
+- Works with any naming: `(B1&B3)`, `(Group A)`, `(Section X)`
+- Select your batch in Setup tab after import
 
-App behavior:
-- Group A students see: Physics Lab
-- Group B students see: Chemistry Lab
-- B1/B3 students see: CN Lab
-- B2/B4 students see: DAA Lab
+---
+
+## Common Errors
+
+| Error | Fix |
+|-------|-----|
+| Invalid CSV | Need exactly 3 columns: Day, Time, Subject |
+| Invalid day | Must be uppercase: MONDAY not Monday |
+| Missing days | Include all 6 days (empty subjects OK) |
+| Subject not tracked | Check it doesn't contain "Lunch" |
 
 ---
 
 ## Examples
 
-### Simple Timetable:
+**Early classes:**
 ```csv
-Day,Time,Subject
-MONDAY,09:00-10:00,Math
-MONDAY,10:00-11:00,Physics
-MONDAY,11:00-12:00,Chemistry
-MONDAY,12:00-01:00,Lunch Break
-TUESDAY,09:00-10:00,Biology
-TUESDAY,10:00-11:00,English
-```
-
-### With Early Classes:
-```csv
-Day,Time,Subject
 MONDAY,08:00-09:00,Extra Class
 MONDAY,09:00-10:00,Math
-MONDAY,10:00-11:00,Physics
 ```
 
-### With Custom Names:
+**Long lab sessions:**
 ```csv
-Day,Time,Subject
+TUESDAY,02:00-05:00,Programming Lab
+```
+
+**Course codes:**
+```csv
 MONDAY,09:00-10:00,CS101 - Data Structures
-MONDAY,10:00-11:00,MATH201 - Calculus II
-MONDAY,11:00-12:00,Advanced Java Programming
 ```
 
 ---
 
-## Errors & Fixes
-
-**"Invalid CSV format"**
-- Fix: Must have exactly 3 columns (Day, Time, Subject)
-- Check for missing commas
-
-**"Missing days"**
-- Fix: Include all 6 days (MONDAY to SATURDAY)
-- Empty days are fine: `SATURDAY,09:00-10:00,`
-
-**"Invalid day"**
-- Fix: Days must be MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
-- Must be uppercase
-
-**Subjects not appearing**
-- Check: Subject name doesn't contain "Lunch"
-- All other names are tracked automatically
-
----
-
-## Need Help?
-
-**Can't import:** Make sure CSV has Day, Time, Subject columns with commas  
-**Wrong subjects showing:** Check batch selection in Setup tab  
-**Want to start over:** Setup Tab → Reset to Default → Then import your CSV  
-
-**GitHub Issues:** https://github.com/siddhesh17b/MyAttendance/issues
-
----
-
-Made by Siddhesh Bisen ([@siddhesh17b](https://github.com/siddhesh17b))
+**Need help?** [GitHub Issues](https://github.com/siddhesh17b/MyAttendance/issues)
