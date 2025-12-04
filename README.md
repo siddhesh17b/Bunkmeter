@@ -27,10 +27,14 @@ First run shows a setup wizard. Pick your batch, set semester dates, done.
 - Import your own timetable (CSV) or use the default
 - Reset all data if needed
 
+![Setup Tab](screenshots/setup_tab.png)
+
 ### 📋 Timetable Tab
 - View your weekly schedule
 - Each subject has a unique color
 - Read-only display
+
+![Timetable Tab](screenshots/timetable_tab.png)
 
 ### 📅 Mark Attendance Tab (Main Tab)
 - Google Calendar-style monthly grid
@@ -44,6 +48,8 @@ First run shows a setup wizard. Pick your batch, set semester dates, done.
   - 🔵 Blue = Today
   - ⚪ White/Gray = Future/Weekend
 
+![Mark Attendance Tab](screenshots/mark_attendance_tab.png)
+
 ### 📊 Summary Tab (Dashboard)
 - **Semester progress bar** with days remaining
 - **Stats cards**: Total subjects, average %, safe count, at-risk count
@@ -55,6 +61,8 @@ First run shows a setup wizard. Pick your batch, set semester dates, done.
 - **Click any subject** → See details panel (absent dates, recovery needed)
 - **Double-click subject** → Manual override (for cancelled classes, extras)
 - **Export Report** → Save as text file
+
+![Summary Tab](screenshots/summery_tab.png)
 
 ---
 
