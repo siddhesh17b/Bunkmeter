@@ -88,12 +88,15 @@ First run shows a setup wizard. Pick your batch, set semester dates, done.
 
 Don't want the default schedule? Import your own:
 
-1. **Setup Tab** → **Export Timetable Template**
-2. Edit the CSV (3 columns: Day, Time, Subject)
+1. Check the template files included:
+   - [`timetable_template_simple.csv`](timetable_template_simple.csv) - Basic format (your actual timetable)
+   - [`timetable_template_flexible.csv`](timetable_template_flexible.csv) - Advanced format (custom times, batch groups)
+2. Edit a template or create your own CSV
 3. **Setup Tab** → **Import Custom Timetable**
 
 ### CSV Format:
 ```
+Day,Time,Subject
 MONDAY,09:00-10:00,Mathematics
 MONDAY,10:00-11:00,Physics
 MONDAY,02:00-04:00,CN Lab (B1&B3) / DAA Lab (B2&B4)
@@ -101,11 +104,11 @@ MONDAY,02:00-04:00,CN Lab (B1&B3) / DAA Lab (B2&B4)
 
 **Rules:**
 - Days must be UPPERCASE (MONDAY, TUESDAY...)
-- Time format is flexible
+- Time format is flexible (08:00-09:00, 8-9, 07:30-09:00)
 - Batch-specific: `Subject1 (Batch1) / Subject2 (Batch2)`
-- Skip lunch rows (or name them "Lunch" - they're ignored)
+- Lunch rows are auto-skipped
 
-### 📖 See **[COMPLETE_GUIDE.md](COMPLETE_GUIDE.md)** for full details.
+📖 See **[COMPLETE_GUIDE.md](COMPLETE_GUIDE.md)** for full details.
 
 ---
 
@@ -116,8 +119,9 @@ MONDAY,02:00-04:00,CN Lab (B1&B3) / DAA Lab (B2&B4)
 | `app.py` | **Run this** |
 | `data.json` | Your attendance data (auto-created) |
 | `custom_timetable.json` | Your imported timetable |
-| `timetable_template.csv` | Sample CSV to edit |
-| `COMPLETE_GUIDE.md` | Full guide |
+| `timetable_template_simple.csv` | Simple CSV template (standard slots) |
+| `timetable_template_flexible.csv` | Advanced CSV template (custom times, groups) |
+| `COMPLETE_GUIDE.md` | Full step-by-step guide |
 
 ---
 

@@ -216,9 +216,18 @@ To remove override:
 
 ## Custom Timetable Format
 
-### CSV Structure (3 columns, no header row)
+### Template Files Included
+Two ready-to-use templates are included:
+
+| Template | Description |
+|----------|-------------|
+| `timetable_template_simple.csv` | Standard hourly slots (09:00-10:00), your actual college timetable |
+| `timetable_template_flexible.csv` | Custom time slots (07:30-09:00, 08:30-10:00), Group A/B batches |
+
+### CSV Structure (3 columns with header)
 ```
-DAY,TIME,SUBJECT
+Day,Time,Subject
+MONDAY,09:00-10:00,Mathematics
 ```
 
 ### Example
