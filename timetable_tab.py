@@ -102,25 +102,6 @@ class TimetableTab:
                 tk.Label(self.timetable_frame, text=subject, font=("Segoe UI", 8, "bold" if subject not in ["BREAK", "LUNCH", ""] else "normal"), background=bg_color, foreground=fg_color, relief="solid", borderwidth=1, padx=8, pady=8, wraplength=100, justify="center").grid(row=row_idx, column=col_idx, sticky=(tk.W, tk.E, tk.N, tk.S), padx=1, pady=1)
         for col in range(len(time_slots) + 1):
             self.timetable_frame.columnconfigure(col, weight=1, minsize=90)
-        
-        # GitHub link at bottom
-        github_frame = ttk.Frame(self.frame)
-        github_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(5, 0))
-        
-        github_label = tk.Label(
-            github_frame,
-            text="Made by Siddhesh Bisen | GitHub: https://github.com/siddhesh17b",
-            font=("Segoe UI", 9),
-            foreground="#666666",
-            cursor="hand2"
-        )
-        github_label.pack()
-        
-        # Make link clickable
-        def open_github(event):
-            import webbrowser
-            webbrowser.open("https://github.com/siddhesh17b")
-        github_label.bind("<Button-1>", open_github)
     
     def get_subject_for_slot(self, day, time_slot, batch):
         """Get subject for a specific day/time slot, handling batch-specific entries"""

@@ -160,25 +160,6 @@ class AttendanceCalendar:
             color_box.pack(side=tk.LEFT, padx=3)
             
             ttk.Label(frame, text=label, font=("Segoe UI", 9)).pack(side=tk.LEFT)
-        
-        # GitHub link at bottom
-        github_frame = ttk.Frame(parent)
-        github_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), padx=10, pady=(0, 5))
-        
-        github_label = tk.Label(
-            github_frame,
-            text="Made by Siddhesh Bisen | GitHub: https://github.com/siddhesh17b",
-            font=("Segoe UI", 9),
-            foreground="#666666",
-            cursor="hand2"
-        )
-        github_label.pack()
-        
-        # Make link clickable
-        def open_github(event):
-            import webbrowser
-            webbrowser.open("https://github.com/siddhesh17b")
-        github_label.bind("<Button-1>", open_github)
     
     def prev_month(self):
         """Navigate to previous month"""

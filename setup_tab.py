@@ -303,25 +303,6 @@ class SetupTab:
             command=self.reset_data
         ).pack(pady=5)
         
-        # GitHub link at bottom (inside scrollable frame)
-        github_frame = ttk.Frame(scrollable_frame)
-        github_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(10, 10))
-        
-        github_label = tk.Label(
-            github_frame,
-            text="Made by Siddhesh Bisen | GitHub: https://github.com/siddhesh17b",
-            font=("Segoe UI", 9),
-            foreground="#666666",
-            cursor="hand2"
-        )
-        github_label.pack()
-        
-        # Make link clickable
-        def open_github(event):
-            import webbrowser
-            webbrowser.open("https://github.com/siddhesh17b")
-        github_label.bind("<Button-1>", open_github)
-        
         self.refresh()
         return tab
     
