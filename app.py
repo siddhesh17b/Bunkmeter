@@ -229,6 +229,16 @@ class BunkBuddyApp:
             fg="white"
         ).pack(pady=15)
         
+        # Configure ttk style for larger tabs
+        style = ttk.Style()
+        style.configure('TNotebook.Tab', 
+                       font=('Segoe UI', 12, 'bold'),
+                       padding=[30, 12],
+                       width=30)
+        style.map('TNotebook.Tab',
+                 background=[('selected', '#1976d2'), ('!selected', '#e3f2fd')],
+                 foreground=[('selected', '#000000'), ('!selected', '#1565c0')])
+        
         # Tab control
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)

@@ -121,17 +121,30 @@ class AttendanceCalendar:
         self.calendar_frame.bind("<MouseWheel>", _on_calendar_mousewheel)
     
     def create_side_panel(self, parent):
-        """Create side panel for subject selection"""
-        self.subjects_panel = ttk.LabelFrame(parent, text="Selected Date", padding=10)
-        self.subjects_panel.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=10, pady=5)
+        """Create side panel for subject selection with enhanced styling"""
+        # Main container with border
+        self.panel_container = tk.Frame(parent, bg="#ffffff", relief=tk.RIDGE, bd=1)
+        self.panel_container.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=10, pady=5)
+        
+        # Header bar with teal color
+        self.panel_header = tk.Frame(self.panel_container, bg="#00897b", height=45)
+        self.panel_header.pack(fill=tk.X)
+        self.panel_header.pack_propagate(False)
+        
+        tk.Label(
+            self.panel_header,
+            text="📅 Selected Date",
+            font=("Segoe UI", 13, "bold"),
+            bg="#00897b",
+            fg="white"
+        ).pack(side=tk.LEFT, padx=15, pady=10)
+        
+        # Content area with light teal background
+        self.subjects_panel = tk.Frame(self.panel_container, bg="#e0f2f1", padx=15, pady=15)
+        self.subjects_panel.pack(fill=tk.BOTH, expand=True)
         
         # Initial placeholder
-        tk.Label(
-            self.subjects_panel, 
-            text="Click a date to view\nand mark attendance",
-            font=("Segoe UI", 11), 
-            foreground="gray"
-        ).pack(expand=True, pady=50)
+        self.show_placeholder()
     
     def create_legend(self, parent):
         """Create color legend"""
@@ -339,78 +352,98 @@ class AttendanceCalendar:
             self.clear_subjects_panel()
             return
         
-        # Clear panel
+        # Clear panel content
         for widget in self.subjects_panel.winfo_children():
             widget.destroy()
         
         # Clear old checkbox variables
         self.check_vars.clear()
         
-        # Header with date and close button
-        header_frame = ttk.Frame(self.subjects_panel)
-        header_frame.pack(fill=tk.X, pady=(0, 5))
+        # Update header with selected date
+        for widget in self.panel_header.winfo_children():
+            widget.destroy()
         
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
         date_display = date_obj.strftime("%B %d, %Y")
         day_name = date_obj.strftime("%A")
         
-        date_label_frame = ttk.Frame(header_frame)
-        date_label_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        tk.Label(
+            self.panel_header,
+            text=f"📅 {date_display}",
+            font=("Segoe UI", 13, "bold"),
+            bg="#00897b",
+            fg="white"
+        ).pack(side=tk.LEFT, padx=15, pady=10)
         
         tk.Label(
-            date_label_frame, 
-            text=date_display, 
-            font=("Segoe UI", 12, "bold")
-        ).pack(anchor=tk.W)
+            self.panel_header,
+            text=day_name,
+            font=("Segoe UI", 11),
+            bg="#00897b",
+            fg="#b2dfdb"
+        ).pack(side=tk.LEFT, padx=5, pady=10)
         
-        tk.Label(
-            date_label_frame, 
-            text=day_name, 
-            font=("Segoe UI", 10)
-        ).pack(anchor=tk.W)
-        
-        # Close button
-        ttk.Button(
-            header_frame, 
-            text="✕", 
-            width=3,
+        # Close button in header
+        close_btn = tk.Button(
+            self.panel_header,
+            text="✕",
+            font=("Segoe UI", 12, "bold"),
+            bg="#00897b",
+            fg="white",
+            relief=tk.FLAT,
+            activebackground="#00695c",
+            activeforeground="white",
+            cursor="hand2",
             command=self.clear_subjects_panel
-        ).pack(side=tk.RIGHT)
+        )
+        close_btn.pack(side=tk.RIGHT, padx=10, pady=8)
         
-        # Holiday toggle button
+        # Holiday toggle button with styled frame
+        holiday_frame = tk.Frame(self.subjects_panel, bg="#e0f2f1")
+        holiday_frame.pack(fill=tk.X, pady=10)
+        
         is_holiday = self.is_holiday_date(date_str)
         holiday_text = "🏖️ Mark as Regular Day" if is_holiday else "🏖️ Mark as Holiday"
         
         ttk.Button(
-            self.subjects_panel, 
+            holiday_frame, 
             text=holiday_text, 
             command=lambda: self.toggle_holiday(date_str)
         ).pack(pady=5)
         
-        ttk.Separator(self.subjects_panel, orient='horizontal').pack(fill=tk.X, pady=10)
+        # Separator
+        separator = tk.Frame(self.subjects_panel, bg="#80cbc4", height=2)
+        separator.pack(fill=tk.X, pady=10)
         
-        # Subjects section
-        tk.Label(
-            self.subjects_panel, 
-            text="Classes:", 
-            font=("Segoe UI", 11, "bold")
-        ).pack(pady=5)
+        # Subjects section with styled header
+        classes_header = tk.Frame(self.subjects_panel, bg="#b2dfdb", padx=10, pady=8)
+        classes_header.pack(fill=tk.X)
         
         tk.Label(
-            self.subjects_panel, 
+            classes_header, 
+            text="📚 Classes", 
+            font=("Segoe UI", 12, "bold"),
+            bg="#b2dfdb",
+            fg="#004d40"
+        ).pack(side=tk.LEFT)
+        
+        tk.Label(
+            classes_header, 
             text="Uncheck to mark ABSENT", 
             font=("Segoe UI", 10), 
-            foreground="gray"
-        ).pack(pady=2)
+            bg="#b2dfdb",
+            fg="#00695c"
+        ).pack(side=tk.RIGHT)
         
         # Scrollable subjects list
-        subjects_container = ttk.Frame(self.subjects_panel)
+        subjects_container = tk.Frame(self.subjects_panel, bg="#e0f2f1")
         subjects_container.pack(fill=tk.BOTH, expand=True, pady=5)
         
         subjects_canvas = tk.Canvas(
             subjects_container, 
-            bg="white", 
-            highlightthickness=0, 
+            bg="#ffffff", 
+            highlightthickness=1,
+            highlightbackground="#b2dfdb",
             height=300
         )
         subjects_scrollbar = ttk.Scrollbar(
@@ -493,15 +526,26 @@ class AttendanceCalendar:
                 foreground=color
             ).pack(side=tk.RIGHT)
         
-        # Save button at bottom
-        save_frame = ttk.Frame(self.subjects_panel)
+        # Save button at bottom with styled frame
+        save_frame = tk.Frame(self.subjects_panel, bg="#e0f2f1")
         save_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
         
-        ttk.Button(
-            save_frame, 
-            text="💾 Save Attendance", 
+        # Enhanced save button
+        save_btn = tk.Button(
+            save_frame,
+            text="💾 Save Attendance",
+            font=("Segoe UI", 11, "bold"),
+            bg="#00897b",
+            fg="white",
+            activebackground="#00695c",
+            activeforeground="white",
+            relief=tk.FLAT,
+            cursor="hand2",
+            padx=20,
+            pady=8,
             command=lambda: self.save_attendance(date_str)
-        ).pack(fill=tk.X)
+        )
+        save_btn.pack(fill=tk.X, padx=5)
     
     def save_attendance(self, date_str):
         """Save attendance for the selected date
@@ -579,6 +623,52 @@ class AttendanceCalendar:
         
         messagebox.showinfo("Success", "Attendance saved successfully!")
     
+    def show_placeholder(self):
+        """Show placeholder in the subjects panel"""
+        # Reset header to default
+        for widget in self.panel_header.winfo_children():
+            widget.destroy()
+        
+        tk.Label(
+            self.panel_header,
+            text="📅 Selected Date",
+            font=("Segoe UI", 13, "bold"),
+            bg="#00897b",
+            fg="white"
+        ).pack(side=tk.LEFT, padx=15, pady=10)
+        
+        # Show placeholder in content
+        placeholder_frame = tk.Frame(self.subjects_panel, bg="#e0f2f1")
+        placeholder_frame.pack(expand=True, fill=tk.BOTH)
+        
+        # Icon
+        tk.Label(
+            placeholder_frame,
+            text="📅",
+            font=("Segoe UI", 40),
+            bg="#e0f2f1",
+            fg="#80cbc4"
+        ).pack(pady=(50, 10))
+        
+        tk.Label(
+            placeholder_frame, 
+            text="Click a date to view\nand mark attendance",
+            font=("Segoe UI", 12), 
+            bg="#e0f2f1",
+            fg="#00695c",
+            justify=tk.CENTER
+        ).pack(pady=10)
+        
+        # Hint text
+        tk.Label(
+            placeholder_frame,
+            text="💡 Tip: Right-click to quickly mark\nan entire day as absent",
+            font=("Segoe UI", 10),
+            bg="#e0f2f1",
+            fg="#80cbc4",
+            justify=tk.CENTER
+        ).pack(pady=20)
+    
     def clear_subjects_panel(self):
         """Clear the subjects panel and show placeholder"""
         self.selected_date = None
@@ -587,13 +677,8 @@ class AttendanceCalendar:
         for widget in self.subjects_panel.winfo_children():
             widget.destroy()
         
-        # Show placeholder text
-        tk.Label(
-            self.subjects_panel, 
-            text="Click a date to view\nand mark attendance",
-            font=("Segoe UI", 11), 
-            foreground="gray"
-        ).pack(expand=True, pady=50)
+        # Show placeholder
+        self.show_placeholder()
     
     def toggle_holiday(self, date_str):
         """Toggle a date as holiday"""
