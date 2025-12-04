@@ -25,6 +25,8 @@ The app opens with 4 tabs. Let's go through each one.
 
 This tab is split into left and right columns.
 
+![Setup Tab](screenshots/setup_tab.png)
+
 ### Left Column
 
 #### Batch Selection
@@ -82,6 +84,8 @@ This tab is split into left and right columns.
 
 Read-only display of your weekly schedule.
 
+![Timetable Tab](screenshots/timetable_tab.png)
+
 ### Layout
 - Rows: Monday to Saturday
 - Columns: Time slots (dynamic - shows all times from your timetable)
@@ -102,6 +106,8 @@ Read-only display of your weekly schedule.
 ## Tab 3: 📅 Mark Attendance (Main Tab)
 
 Google Calendar-style monthly grid.
+
+![Mark Attendance Tab](screenshots/mark_attendance_tab.png)
 
 ### Navigation
 - **"◀ Prev"** → Previous month
@@ -149,6 +155,8 @@ Quick toggle for entire day:
 ## Tab 4: 📊 Summary (Dashboard)
 
 Your attendance headquarters.
+
+![Summary Tab](screenshots/summery_tab.png)
 
 ### Semester Progress Bar
 - Visual bar showing semester completion %

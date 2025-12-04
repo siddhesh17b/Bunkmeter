@@ -17,52 +17,22 @@ First run shows a setup wizard. Pick your batch, set semester dates, done.
 
 ---
 
-## 4 Tabs, 4 Functions
+## What it is
 
-### ⚙️ Setup Tab
-- Select batch (B1/B3, B2/B4, or custom)
-- Set semester start/end dates
-- Add holidays (Diwali break, exam weeks, etc.)
-- Add "skipped periods" (sick days, personal leave)
-- Import your own timetable (CSV) or use the default
-- Reset all data if needed
+MyAttendance is a compact, offline desktop app for students to track class attendance and instantly calculate how many classes can be missed while keeping attendance at or above 75%.
 
-![Setup Tab](screenshots/setup_tab.png)
+It focuses on accuracy (day-by-day counting), minimal input (present-by-default), and practical controls (holiday handling, batch-aware timetables, quick full-day marking).
 
-### 📋 Timetable Tab
-- View your weekly schedule
-- Each subject has a unique color
-- Read-only display
+---
 
-![Timetable Tab](screenshots/timetable_tab.png)
+## Highlights
 
-### 📅 Mark Attendance Tab (Main Tab)
-- Google Calendar-style monthly grid
-- **Left-click date** → Mark individual subjects absent
-- **Right-click date** → Mark entire day absent (one click)
-- Colors show status at a glance:
-  - 🟢 Green = All present
-  - 🩵 Cyan = Some absent
-  - 🔴 Dark Red = Completely skipped
-  - 🟡 Yellow = Holiday
-  - 🔵 Blue = Today
-  - ⚪ White/Gray = Future/Weekend
-
-![Mark Attendance Tab](screenshots/mark_attendance_tab.png)
-
-### 📊 Summary Tab (Dashboard)
-- **Semester progress bar** with days remaining
-- **Stats cards**: Total subjects, average %, safe count, at-risk count
-- **Subject table** with:
-  - Attended / Total / Remaining classes
-  - Attendance % with progress bar
-  - Status (🟢 Excellent / 🟡 Safe / 🔴 At Risk)
-  - **"Can Skip" count** - how many more you can bunk
-- **Click any subject** → See details panel (absent dates, recovery needed)
-- **Double-click subject** → Manual override (for cancelled classes, extras)
-- **Export Report** → Save as text file
-
-![Summary Tab](screenshots/summery_tab.png)
+- Accurate, day-by-day class counting (no rough weekly estimates).
+- Present-by-default model: you only record absences.
+- Flexible CSV import: any time-slot format and batch syntax supported.
+- Holiday and skipped-day aware: holidays and whole-day absences don't penalize attendance.
+- Fast marking: left-click for per-class adjustments; right-click to mark/unmark whole day.
+- Manual overrides and exportable reports for auditability.
 
 ---
 
