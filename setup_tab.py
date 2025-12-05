@@ -88,63 +88,58 @@ class SetupTab:
         scrollable_frame.columnconfigure(0, weight=1)
         scrollable_frame.columnconfigure(1, weight=1)
         
-        # Batch Selection (LEFT) - Enhanced with icons and better styling
+        # Batch Selection (LEFT) - Compact modern design with horizontal toggle buttons
         self.batch_frame = tk.Frame(self.left_column, bg="#e3f2fd", relief=tk.FLAT, bd=0, highlightthickness=2, highlightbackground="#1976d2")
         self.batch_frame.pack(fill=tk.X, padx=10, pady=10)
         
-        # Batch header with icon
-        batch_header = tk.Frame(self.batch_frame, bg="#1976d2", height=50)
-        batch_header.pack(fill=tk.X)
-        batch_header.pack_propagate(False)
-        tk.Label(
-            batch_header,
-            text="👥 Batch Selection",
-            font=("Segoe UI", 15, "bold"),
-            bg="#1976d2",
-            fg="white",
-            padx=20,
-            pady=12
-        ).pack(side=tk.LEFT)
-        
-        # Batch content area
-        batch_content = tk.Frame(self.batch_frame, bg="#e3f2fd", padx=20, pady=20)
+        # Batch content area - single row layout
+        batch_content = tk.Frame(self.batch_frame, bg="#e3f2fd", padx=15, pady=12)
         batch_content.pack(fill=tk.X)
         
+        # Left side: Icon and label
+        batch_label_frame = tk.Frame(batch_content, bg="#e3f2fd")
+        batch_label_frame.pack(side=tk.LEFT)
+        
         tk.Label(
-            batch_content,
-            text="Select your batch/section for accurate timetable filtering:",
-            font=("Segoe UI", 12),
+            batch_label_frame,
+            text="👥",
+            font=("Segoe UI", 16),
+            bg="#e3f2fd"
+        ).pack(side=tk.LEFT, padx=(0, 8))
+        
+        tk.Label(
+            batch_label_frame,
+            text="Batch:",
+            font=("Segoe UI", 13, "bold"),
             bg="#e3f2fd",
             fg="#1565c0"
-        ).pack(anchor=tk.W, pady=(0, 15))
+        ).pack(side=tk.LEFT)
         
-        # Container for dynamic batch options with card-like styling
-        self.batch_container = tk.Frame(batch_content, bg="#e3f2fd")
-        self.batch_container.pack(fill=tk.X, pady=5)
-        
-        # Initialize batch selection
-        self.batch_var = tk.StringVar(value=app_data.get("batch", ""))
-        self.update_batch_options()
-        
-        # Update button with better styling
-        update_btn_frame = tk.Frame(batch_content, bg="#e3f2fd")
-        update_btn_frame.pack(fill=tk.X, pady=(15, 5))
-        
-        update_btn = tk.Button(
-            update_btn_frame, 
-            text="✓ Update Batch", 
-            font=("Segoe UI", 11, "bold"),
+        # Right side: Update button
+        self.batch_update_btn = tk.Button(
+            batch_content, 
+            text="✓ Apply", 
+            font=("Segoe UI", 10, "bold"),
             bg="#1976d2",
             fg="white",
             activebackground="#1565c0",
             activeforeground="white",
             relief=tk.FLAT,
-            padx=20,
-            pady=8,
+            padx=12,
+            pady=4,
             cursor="hand2",
             command=self.on_batch_update
         )
-        update_btn.pack(side=tk.LEFT)
+        self.batch_update_btn.pack(side=tk.RIGHT, padx=(10, 0))
+        
+        # Center: Container for batch toggle buttons (horizontal)
+        self.batch_container = tk.Frame(batch_content, bg="#e3f2fd")
+        self.batch_container.pack(side=tk.LEFT, padx=15)
+        
+        # Initialize batch selection
+        self.batch_var = tk.StringVar(value=app_data.get("batch", ""))
+        self.batch_buttons = {}  # Store button references for styling
+        self.update_batch_options()
         
         # Setup mode banner (hidden by default)
         self.setup_banner = tk.Frame(self.left_column, bg="#fff3cd")
@@ -252,33 +247,33 @@ class SetupTab:
         self.holidays_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
         # Holidays header with icon
-        holidays_header = tk.Frame(self.holidays_frame, bg="#f57c00", height=50)
+        holidays_header = tk.Frame(self.holidays_frame, bg="#f57c00", height=42)
         holidays_header.pack(fill=tk.X)
         holidays_header.pack_propagate(False)
         tk.Label(
             holidays_header,
             text="🏖️ Holiday Periods",
-            font=("Segoe UI", 15, "bold"),
+            font=("Segoe UI", 13, "bold"),
             bg="#f57c00",
             fg="white",
-            padx=20,
-            pady=12
+            padx=15,
+            pady=8
         ).pack(side=tk.LEFT)
         
         # Holidays content area
-        holidays_content = tk.Frame(self.holidays_frame, bg="#fff8e1", padx=20, pady=20)
+        holidays_content = tk.Frame(self.holidays_frame, bg="#fff8e1", padx=15, pady=12)
         holidays_content.pack(fill=tk.BOTH, expand=True)
         
         tk.Label(
             holidays_content,
-            text="Add holidays when no classes are held (these dates won't affect attendance).",
-            font=("Segoe UI", 12),
+            text="Add holidays when no classes are held (won't affect attendance).",
+            font=("Segoe UI", 11),
             bg="#fff8e1",
             fg="#e65100"
-        ).pack(anchor=tk.W, pady=(0, 15))
+        ).pack(anchor=tk.W, pady=(0, 8))
         
         self.holidays_tree = ttk.Treeview(holidays_content, columns=("No", "Name", "Date"), 
-                                         show="headings", height=6)
+                                         show="headings", height=4)
         self.holidays_tree.heading("No", text="#")
         self.holidays_tree.heading("Name", text="Holiday Name")
         self.holidays_tree.heading("Date", text="Date")
@@ -303,49 +298,49 @@ class SetupTab:
         self.holidays_tree.bind("<Leave>", _unbind_holidays_mousewheel)
         
         btn_frame = tk.Frame(holidays_content, bg="#fff8e1")
-        btn_frame.pack(fill=tk.X, pady=(10, 5))
+        btn_frame.pack(fill=tk.X, pady=(6, 0))
         
         add_holiday_btn = tk.Button(
             btn_frame, 
-            text="➕ Add Holiday Period", 
-            font=("Segoe UI", 10, "bold"),
+            text="➕ Add", 
+            font=("Segoe UI", 9, "bold"),
             bg="#f57c00",
             fg="white",
             activebackground="#e65100",
             activeforeground="white",
             relief=tk.FLAT,
-            padx=15,
-            pady=6,
+            padx=10,
+            pady=4,
             cursor="hand2",
             command=self.add_holiday
         )
-        add_holiday_btn.pack(side=tk.LEFT, padx=(0, 8))
+        add_holiday_btn.pack(side=tk.LEFT, padx=(0, 5))
         
         remove_holiday_btn = tk.Button(
             btn_frame, 
-            text="➖ Remove Selected", 
-            font=("Segoe UI", 10),
+            text="➖ Remove", 
+            font=("Segoe UI", 9),
             bg="#ffcc80",
             fg="#e65100",
             activebackground="#ffb74d",
             relief=tk.FLAT,
-            padx=15,
-            pady=6,
+            padx=10,
+            pady=4,
             cursor="hand2",
             command=self.remove_holiday
         )
-        remove_holiday_btn.pack(side=tk.LEFT, padx=(0, 8))
+        remove_holiday_btn.pack(side=tk.LEFT, padx=(0, 5))
         
         remove_all_btn = tk.Button(
             btn_frame, 
-            text="🗑️ Remove All", 
-            font=("Segoe UI", 10),
+            text="🗑️ Clear", 
+            font=("Segoe UI", 9),
             bg="#ffcc80",
             fg="#e65100",
             activebackground="#ffb74d",
             relief=tk.FLAT,
-            padx=15,
-            pady=6,
+            padx=10,
+            pady=4,
             cursor="hand2",
             command=self.remove_all_holidays
         )
@@ -531,62 +526,61 @@ class SetupTab:
             cursor="hand2"
         ).pack(side=tk.LEFT, padx=5)
         
-        # Reset Data Section (RIGHT) - Enhanced with red/warning theme
+        # Reset Data Section (RIGHT) - Compact modern design
         self.reset_frame = tk.Frame(right_column, bg="#ffebee", relief=tk.FLAT, bd=0, highlightthickness=2, highlightbackground="#d32f2f")
         self.reset_frame.pack(fill=tk.X, padx=10, pady=10)
         
-        # Red header bar
-        reset_header = tk.Frame(self.reset_frame, bg="#d32f2f", height=48)
-        reset_header.pack(fill=tk.X)
-        reset_header.pack_propagate(False)
-        
-        tk.Label(
-            reset_header,
-            text="⚠️ Reset Data",
-            font=("Segoe UI", 15, "bold"),
-            bg="#d32f2f",
-            fg="white"
-        ).pack(side=tk.LEFT, padx=20, pady=10)
-        
-        # Light red content area
-        reset_content = tk.Frame(self.reset_frame, bg="#ffebee", padx=20, pady=20)
+        # Single row layout for compact design
+        reset_content = tk.Frame(self.reset_frame, bg="#ffebee", padx=15, pady=12)
         reset_content.pack(fill=tk.X)
         
+        # Left side: Icon, text and warning
+        reset_left = tk.Frame(reset_content, bg="#ffebee")
+        reset_left.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        # Title row
+        title_row = tk.Frame(reset_left, bg="#ffebee")
+        title_row.pack(fill=tk.X)
+        
         tk.Label(
-            reset_content, 
-            text="This will clear all holidays, skipped days, and absent dates.\nSemester dates and batch selection will be preserved.",
-            font=("Segoe UI", 12),
+            title_row,
+            text="⚠️",
+            font=("Segoe UI", 18),
+            bg="#ffebee"
+        ).pack(side=tk.LEFT, padx=(0, 8))
+        
+        tk.Label(
+            title_row,
+            text="Reset Data",
+            font=("Segoe UI", 14, "bold"),
             bg="#ffebee",
-            fg="#c62828",
-            justify=tk.LEFT
-        ).pack(pady=(0, 10), anchor="w")
+            fg="#c62828"
+        ).pack(side=tk.LEFT)
         
-        # Warning icon box
-        warning_box = tk.Frame(reset_content, bg="#ffcdd2", padx=12, pady=10, relief=tk.FLAT, bd=1)
-        warning_box.pack(fill=tk.X, pady=(0, 12))
-        
+        # Description
         tk.Label(
-            warning_box,
-            text="⚡ This action cannot be undone!",
-            font=("Segoe UI", 11, "bold"),
-            bg="#ffcdd2",
-            fg="#b71c1c"
-        ).pack(anchor="w")
+            reset_left, 
+            text="Clear all holidays, skipped days & absences. This cannot be undone!",
+            font=("Segoe UI", 10),
+            bg="#ffebee",
+            fg="#d32f2f"
+        ).pack(anchor=tk.W, pady=(4, 0))
         
+        # Right side: Button
         tk.Button(
             reset_content, 
-            text="🔄 Reset All Data", 
+            text="🔄 Reset", 
             command=self.reset_data,
-            font=("Segoe UI", 11, "bold"),
+            font=("Segoe UI", 10, "bold"),
             bg="#d32f2f",
             fg="white",
             activebackground="#c62828",
             activeforeground="white",
             relief=tk.FLAT,
-            padx=15,
-            pady=8,
+            padx=14,
+            pady=6,
             cursor="hand2"
-        ).pack(pady=8)
+        ).pack(side=tk.RIGHT, padx=(10, 0))
         
         self.refresh()
         return tab
@@ -666,10 +660,11 @@ class SetupTab:
         return sorted(batch_names)
     
     def update_batch_options(self):
-        """Update batch selection radio buttons dynamically with enhanced styling"""
+        """Update batch selection with modern horizontal toggle buttons"""
         # Clear existing widgets
         for widget in self.batch_container.winfo_children():
             widget.destroy()
+        self.batch_buttons = {}
         
         # Get batch names from timetable
         batch_names = self.extract_batch_names()
@@ -684,24 +679,40 @@ class SetupTab:
         else:
             self.batch_var.set(current_batch)
         
-        # Configure ttk style for larger radio buttons
-        style = ttk.Style()
-        style.configure(
-            "Batch.TRadiobutton",
-            font=("Segoe UI", 12),
-            background="#e3f2fd",
-            padding=(5, 8)
-        )
-        
-        # Create radio buttons for each batch with enhanced styling
+        # Create toggle-style buttons for each batch (horizontal layout)
         for batch_name in batch_names:
-            ttk.Radiobutton(
-                self.batch_container, 
-                text=batch_name, 
-                variable=self.batch_var, 
-                value=batch_name,
-                style="Batch.TRadiobutton"
-            ).pack(anchor=tk.W, pady=4, padx=5)
+            is_selected = (batch_name == self.batch_var.get())
+            btn = tk.Button(
+                self.batch_container,
+                text=batch_name,
+                font=("Segoe UI", 11, "bold" if is_selected else "normal"),
+                bg="#1976d2" if is_selected else "#ffffff",
+                fg="white" if is_selected else "#1976d2",
+                activebackground="#1565c0" if is_selected else "#e3f2fd",
+                activeforeground="white" if is_selected else "#1976d2",
+                relief=tk.FLAT,
+                bd=0,
+                padx=16,
+                pady=6,
+                cursor="hand2",
+                highlightthickness=1,
+                highlightbackground="#1976d2",
+                command=lambda b=batch_name: self.select_batch(b)
+            )
+            btn.pack(side=tk.LEFT, padx=3)
+            self.batch_buttons[batch_name] = btn
+    
+    def select_batch(self, batch_name):
+        """Handle batch toggle button click"""
+        self.batch_var.set(batch_name)
+        # Update button styles to show selected state
+        for name, btn in self.batch_buttons.items():
+            is_selected = (name == batch_name)
+            btn.configure(
+                bg="#1976d2" if is_selected else "#ffffff",
+                fg="white" if is_selected else "#1976d2",
+                font=("Segoe UI", 11, "bold" if is_selected else "normal")
+            )
     
     def on_batch_update(self):
         app_data = get_app_data()
