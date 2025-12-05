@@ -142,9 +142,9 @@ class SummaryTab:
         self.semester_progress_frame = tk.Frame(self.canvas_frame, bg="#ffffff")
         self.semester_progress_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
         
-        # Stats cards frame (enhanced)
-        self.stats_frame = tk.Frame(self.canvas_frame, bg="#f8f9fa")
-        self.stats_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 20))
+        # Stats cards frame - horizontal compact layout with white bg
+        self.stats_frame = tk.Frame(self.canvas_frame, bg="#ffffff")
+        self.stats_frame.pack(fill=tk.X, padx=10, pady=(0, 15))
         
         # Table frame with border
         table_container = tk.Frame(self.canvas_frame, bg="#dee2e6", bd=1, relief=tk.SOLID)
@@ -173,7 +173,7 @@ class SummaryTab:
         ).pack(fill=tk.X, padx=2, pady=(2, 5))
         
         # Summary table with enhanced styling
-        columns = ("Subject", "Attended", "Total", "Remaining", "Percentage", "Progress", "Status", "Skip", "Action")
+        columns = ("Subject", "Attended", "Total", "Remaining", "Percentage", "Progress", "Status", "Skip", "Mode")
         self.summary_tree = ttk.Treeview(table_left, columns=columns, show="headings", height=12)
         
         # Configure larger font for treeview
@@ -192,7 +192,7 @@ class SummaryTab:
             "Progress": (140, 100, "Visual Progress", tk.CENTER),
             "Status": (100, 80, "Status", tk.CENTER),
             "Skip": (80, 60, "Can Skip", tk.CENTER),
-            "Action": (100, 80, "Action", tk.CENTER)
+            "Mode": (100, 80, "Mode", tk.CENTER)
         }
         
         for col, (width, minwidth, heading, anchor) in column_configs.items():
@@ -240,51 +240,25 @@ class SummaryTab:
         # Bind single-click to show details panel
         self.summary_tree.bind("<<TreeviewSelect>>", self.on_row_select)
         
-        # Tips and actions frame
-        action_frame = tk.Frame(self.canvas_frame, bg="#f8f9fa")
-        action_frame.pack(fill=tk.X, padx=10, pady=10)
+        # Compact tips and actions bar - single row
+        action_frame = tk.Frame(self.canvas_frame, bg="#e3f2fd")
+        action_frame.pack(fill=tk.X, padx=10, pady=(5, 10))
         
-        # Info labels
-        tips_frame = tk.Frame(action_frame, bg="#f8f9fa")
-        tips_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        
-        # Override feature highlight box
-        override_hint_frame = tk.Frame(tips_frame, bg="#e3f2fd", padx=10, pady=8)
-        override_hint_frame.pack(anchor=tk.W, pady=(0, 8), fill=tk.X)
-        
+        # Left side: hints
         tk.Label(
-            override_hint_frame,
-            text="✏️ MANUAL OVERRIDE: Double-click any subject row to manually set attended/total classes",
-            font=("Segoe UI", 10, "bold"),
+            action_frame,
+            text="📌 MANUAL OVERRIDE: Double-click any subject row to manually set attended/total classes  •  📌 Click headers to sort",
+            font=("Segoe UI", 11),
             foreground="#1565c0",
-            bg="#e3f2fd",
-            anchor=tk.W
-        ).pack(anchor=tk.W)
+            bg="#e3f2fd"
+        ).pack(side=tk.LEFT, padx=10, pady=6)
         
-        tk.Label(
-            override_hint_frame,
-            text="      Use this when classes were cancelled, rescheduled, or you need to correct attendance data",
-            font=("Segoe UI", 10),
-            foreground="#1976d2",
-            bg="#e3f2fd",
-            anchor=tk.W
-        ).pack(anchor=tk.W)
-        
-        tk.Label(
-            tips_frame,
-            text="📌 Click column headers to sort • Color coding: 🟢 Safe • 🟡 Warning • 🔴 At Risk",
-            font=("Segoe UI", 10),
-            foreground="#6c757d",
-            bg="#f8f9fa",
-            anchor=tk.W
-        ).pack(anchor=tk.W, pady=2)
-        
-        # Export button (enhanced)
+        # Right side: Export button
         ttk.Button(
             action_frame, 
             text="📄 Export Report", 
             command=self.export_report
-        ).pack(side=tk.RIGHT, padx=5)
+        ).pack(side=tk.RIGHT, padx=10, pady=4)
         
         # Initial data load
         self.refresh()
@@ -320,18 +294,8 @@ class SummaryTab:
         bar_length = 10
         filled = int((percentage / 100) * bar_length)
         
-        if percentage >= 75:
-            symbol = "█"
-            color = "🟢"
-        elif percentage >= 60:
-            symbol = "█"
-            color = "🟡"
-        else:
-            symbol = "█"
-            color = "🔴"
-        
-        bar = symbol * filled + "░" * (bar_length - filled)
-        return f"{color} {bar}"
+        bar = "█" * filled + "░" * (bar_length - filled)
+        return bar
     
     def show_details_placeholder(self):
         """Show placeholder text in details panel"""
@@ -508,13 +472,13 @@ class SummaryTab:
         
         # Status indicator (60% threshold for subjects)
         if attendance_pct >= 75:
-            status_text = "🟢 Excellent"
+            status_text = "Excellent"
             status_color = COLOR_SAFE
         elif attendance_pct >= 60:
-            status_text = "🟡 Safe"
+            status_text = "Safe"
             status_color = COLOR_WARNING
         else:
-            status_text = "🔴 At Risk"
+            status_text = "At Risk"
             status_color = COLOR_RISK
             # Show classes needed to reach 60%
             if total > 0:
@@ -767,7 +731,7 @@ class SummaryTab:
                 override_data = subject_data["attendance_override"]
                 present = override_data["attended"]
                 total = override_data["total"]
-                action_text = "📝 Manual"
+                mode_text = "📝 Manual"
             else:
                 # Calculate total classes using ACCURATE day-by-day counting
                 # This counts actual occurrences of the subject's scheduled days
@@ -801,7 +765,7 @@ class SummaryTab:
                         absent_count += 1
                 
                 present = max(0, total - absent_count)
-                action_text = "✏️ Edit"
+                mode_text = "Auto"
             
             attendance_pct = calculate_attendance(present, total)
             safe_skip = calculate_safe_skip(present, total)
@@ -812,15 +776,15 @@ class SummaryTab:
             
             # Determine status icon and category (60% threshold for subjects)
             if attendance_pct >= 75:
-                status_icon = "🟢 Excellent"
+                status_icon = "Excellent"
                 tag = "safe"
                 safe_count += 1
             elif attendance_pct >= 60:
-                status_icon = "🟡 Safe"
+                status_icon = "Safe"
                 tag = "warning"
                 warning_count += 1
             else:
-                status_icon = "🔴 At Risk"
+                status_icon = "At Risk"
                 tag = "risk"
                 at_risk_count += 1
             
@@ -843,7 +807,7 @@ class SummaryTab:
             
             item = self.summary_tree.insert(
                 "", tk.END,
-                values=(name, present, total, remaining_classes, f"{attendance_pct:.1f}%", progress_bar, status_icon, safe_skip, action_text)
+                values=(name, present, total, remaining_classes, f"{attendance_pct:.1f}%", progress_bar, status_icon, safe_skip, mode_text)
             )
             
             self.summary_tree.item(item, tags=(tag,))
@@ -883,10 +847,10 @@ class SummaryTab:
             tk.Label(
                 self.overall_warning_frame,
                 text=f"⚠️ Overall attendance ({avg_attendance:.1f}%) is below 75% minimum!",
-                font=("Segoe UI", 10, "bold"),
+                font=("Segoe UI", 11, "bold"),
                 bg="#f8d7da",
                 fg="#721c24"
-            ).pack(pady=5)
+            ).pack(pady=4)
     
     def get_bg_color(self, percentage):
         """Get background color based on percentage (60% threshold for subjects)"""
@@ -898,40 +862,50 @@ class SummaryTab:
             return COLOR_BG_RISK
     
     def create_stat_card(self, icon, label, value, text_color, bg_color):
-        """Create enhanced stat card with icon and styling - compact version"""
-        # Card container with shadow effect
+        """Create compact horizontal stat card with icon, value and label side-by-side"""
+        # Card container with border
         card_container = tk.Frame(self.stats_frame, bg="#dee2e6", bd=1, relief=tk.SOLID)
-        card_container.pack(side=tk.LEFT, expand=True, padx=6, pady=4)
+        card_container.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=4, pady=2)
         
-        # Inner card
+        # Inner card - horizontal layout
         card = tk.Frame(card_container, bg=bg_color)
         card.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
         
-        # Icon
+        # Horizontal content frame
+        content = tk.Frame(card, bg=bg_color)
+        content.pack(fill=tk.X, expand=True, padx=12, pady=8)
+        
+        # Icon on left
         tk.Label(
-            card,
+            content,
             text=icon,
-            font=("Segoe UI", 20),
+            font=("Segoe UI", 24),
             bg=bg_color
-        ).pack(pady=(8, 2))
+        ).pack(side=tk.LEFT, padx=(0, 8))
         
-        # Value
+        # Value + Label stacked on right
+        text_frame = tk.Frame(content, bg=bg_color)
+        text_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        # Value - large and bold
         tk.Label(
-            card,
+            text_frame,
             text=str(value),
-            font=("Segoe UI", 20, "bold"),
+            font=("Segoe UI", 26, "bold"),
             fg=text_color,
-            bg=bg_color
-        ).pack()
+            bg=bg_color,
+            anchor="w"
+        ).pack(anchor="w")
         
-        # Label
+        # Label - smaller below value
         tk.Label(
-            card,
+            text_frame,
             text=label,
-            font=("Segoe UI", 10),
+            font=("Segoe UI", 12),
             fg="#495057",
-            bg=bg_color
-        ).pack(pady=(2, 8))
+            bg=bg_color,
+            anchor="w"
+        ).pack(anchor="w")
     
     def export_report(self):
         """Export attendance report to text file"""
