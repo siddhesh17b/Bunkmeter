@@ -126,7 +126,7 @@ class SummaryTab:
         # Table label
         tk.Label(
             table_left,
-            text="Subject-wise Attendance Details",
+            text="Subject-wise Attendance Details  —  'Can Skip' = classes you can miss (≥60%)",
             font=("Segoe UI", 13, "bold"),
             bg="#ffffff",
             fg="#495057",
@@ -147,7 +147,7 @@ class SummaryTab:
         column_configs = {
             "Subject": (180, 120, "Subject Name", tk.W),
             "Attended": (80, 60, "Present", tk.CENTER),
-            "Total": (80, 60, "Total", tk.CENTER),
+            "Total": (80, 60, "Classes Held", tk.CENTER),
             "Remaining": (80, 60, "Remaining", tk.CENTER),
             "Percentage": (90, 70, "Attendance", tk.CENTER),
             "Progress": (140, 100, "Visual Progress", tk.CENTER),
@@ -889,7 +889,7 @@ class SummaryTab:
                 f.write(f"Semester: {app_data.get('semester_start', 'N/A')} to {app_data.get('semester_end', 'N/A')}\n\n")
                 
                 f.write("-" * 70 + "\n")
-                f.write(f"{'Subject':<20} {'Present':>10} {'Total':>10} {'%':>8} {'Status':>10}\n")
+                f.write(f"{'Subject':<20} {'Present':>10} {'Classes Held':>12} {'%':>8} {'Status':>10}\n")
                 f.write("-" * 70 + "\n")
                 
                 # Use TODAY as end date for calculations (not semester end)
